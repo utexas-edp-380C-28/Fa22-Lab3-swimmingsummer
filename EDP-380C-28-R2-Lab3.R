@@ -201,21 +201,22 @@ ans_3b <- rbind(b0 = cbind(beta0, ols_3[1 ,1], beta0 - ols_3[1, 1]),
                 b1 = cbind(p_y1$beta[1], ols_3[2, 1], p_y1$beta[1] - ols_3[2, 1]),
                 b2 = cbind(p_y1$beta[2], ols_3[3, 1], p_y1$beta[1] - ols_3[3, 1]),
                 R2 = cbind(p_y1$r2, ols_3[5, 1], p_y1$r2 - ols_3[5, 1]),
+                SE = cbind(sigma_e, ols_3[4, 1], sigma_e - ols_3[4, 1]),
                 mu = cbind(p_y1$mu, mean(y1), p_y1$mu - mean(y1)))
 
 colnames(ans_3b) <- c("Population", "Estimate", "Difference")
-rownames(ans_3b) <- c("b0", "b1", "b2", "R2", "mu")
+rownames(ans_3b) <- c("b0", "b1", "b2", "R2", "SD(e)", "mu")
 
 
 ## Answer for population difference
 
 # Population   Estimate    Difference
-# b0       -5.0 -4.9370527 -0.0629472651
-# b1        1.0  0.9891609  0.0108391155
-# b2        1.0  0.9997359  0.0002641366
-# R2        0.6  0.5978317  0.0021682893
-# mu       10.0 10.0016495 -0.0016494593
-
+# b0     -5.000000 -4.9370527 -0.0629472651
+# b1      1.000000  0.9891609  0.0108391155
+# b2      1.000000  0.9997359  0.0002641366
+# R2      0.600000  0.5978317  0.0021682893
+# SD(e)   2.033295  2.0364085 -0.0031133486
+# mu     10.000000 10.0016495 -0.0016494593
 # 3.c)
 
 ## Set seed and parameters
@@ -241,7 +242,8 @@ eq26 <- with(p_y2, sd^2 - t(beta_n) %*% (cor_mat[2:3, 1]))
 sen <- sqrt(eq26)
 
 ## Rsquared 
-rsqn <- cor_mat[1, 2:3] %*% solve(cor_mat[2:3, 2:3]) %*% cor_mat[2:3, 1]
+rsqn <- cor_mat[1, -1] %*% solve(cor_mat[-1, -1]) %*% cor_mat[-1, 1]
+
 
 ## Beta_0
 
@@ -251,30 +253,24 @@ y2 <- with(p_y2, (matrix(1, n) %*% beta0_n)+ x1 %*% beta_n + rnorm(n, 0, sen))
 
 ols_3c <- OLS(y2, x1)
 
-ans_3c <- rbind(r1 = cbind(p_y2$r[1], cor(y2, x1[, 1]), p_y2$r[1] - cor(y2, x1[, 1])),
-                r2 = cbind(p_y2$r[2], cor(y2, x1[, 2]), p_y2$r[2] - cor(y2, x1[, 2])),
-                mu = cbind(p_y2$mu, mean(y2), p_y2$mu - mean(y2)),
-                sd = cbind(p_y2$sd, sd(y2), p_y2$sd -sd(y2)),
-                b0 = cbind(beta0_n, ols_3c[1, 1], beta0_n - ols_3c[1, 1]),
+ans_3c <- rbind(b0 = cbind(beta0_n, ols_3c[1, 1], beta0_n - ols_3c[1, 1]),
                 b1 = cbind(beta_n[1, 1], ols_3c[2, 1], beta_n[1, 1] - ols_3c[2, 1]),
                 b2 = cbind(beta_n[2, 1], ols_3c[3, 1],beta_n[2, 1] - ols_3c[3, 1]),
-                rsq = cbind(rsqn, ols_3c[5, 1], rsqn - ols_3c[5, 1]))
+                SE = cbind(sen, ols_3c[4, 1], sen - ols_3c[4, 1]), 
+                R2 = cbind(rsqn, ols_3c[5, 1], rsqn - ols_3c[5, 1]))
 
 
 colnames(ans_3c) <- c("Population", "Estimate", "Difference")
-rownames(ans_3c) <- c("r1", "r2", "mu", "sd", "b0", "b1", "b2", "R2")
+rownames(ans_3c) <- c("b0", "b1", "b2", "SD(e)", "R2")
 
 ## Answer
 
-# Population   Estimate    Difference
-# r1  0.3000000  0.2647787  0.0352212599
-# r2 -0.4000000 -0.3464427 -0.0535572536
-# mu 10.0000000 10.0004245 -0.0004245208
-# sd  5.0000000  5.7013058 -0.7013058144
-# b0 11.9230769 11.7478467  0.1752302298
-# b1  2.3076923  2.3204565 -0.0127641669
-# b2 -1.3461538 -1.3348942 -0.0112596752
-# R2  0.3538462  0.2697996  0.0840465512
+# Population   Estimate   Difference
+# b0    11.9230769 11.7478467  0.175230230
+# b1     2.3076923  2.3204565 -0.012764167
+# b2    -1.3461538 -1.3348942 -0.011259675
+# SD(e)  4.8753698  4.8719020  0.003467843
+# R2     0.3538462  0.2697996  0.084046551
 
 ## 3.d)
 
@@ -310,7 +306,7 @@ p_y <- list(beta = rep(1, 5), mu = 25, r2 = 0.5)
 
 m1 <- gen_m1(n, p_x, p_y)
 
-m_3d1 <- OLS(m1[,1], cbind(m1[,2:6]))
+m_3d1 <- OLS(m1[, 1], cbind(m1[,2:6]))
 
 # Estimate          SE    t value Pr(>|t|)
 # b0    25.0219149 0.015222210 1643.77672        0
@@ -329,24 +325,25 @@ ans_3d1 <- rbind(b1 = cbind(p_y$beta[1], m_3d1[2, 1], p_y$beta[1] - m_3d1[2, 1])
                  b4 = cbind(p_y$beta[4], m_3d1[5, 1],p_y$beta[4] - m_3d1[5, 1]),
                  b5 = cbind(p_y$beta[5], m_3d1[6, 1],p_y$beta[5] - m_3d1[6, 1]),
                  rsq = cbind(p_y$r2, m_3d1[8, 1], p_y$r2 - m_3d1[8, 1]),
+                 SE = cbind(sigma_e, m_3d1[7, 1], sigma_e - m_3d1[7, 1]),
                  mu = cbind(p_y$mu, mean(m1[,1]),p_y$mu - mean(m1[,1])))
 
 colnames(ans_3d1) <- c("Population", "Estimate", "Difference")
-rownames(ans_3d1) <- c("b1", "b2", "b3", "b4", "b5", "R2", "mu")
+rownames(ans_3d1) <- c("b1", "b2", "b3", "b4", "b5", "R2", "SD(e)", "mu")
 
 
 # Population   Estimate    Difference
-# b1        1.0  0.9812633  0.0187366927
-# b2        1.0  1.0199224 -0.0199223718
-# b3        1.0  0.9881525  0.0118474752
-# b4        1.0  0.9852174  0.0147825927
-# b5        1.0  1.0050576 -0.0050575912
-# R2        0.5  0.4991145  0.0008855123
-# mu       25.0 25.0334707 -0.0334707122
+# b1      1.000000  0.9812633  0.0187366927
+# b2      1.000000  1.0199224 -0.0199223718
+# b3      1.000000  0.9881525  0.0118474752
+# b4      1.000000  0.9852174  0.0147825927
+# b5      1.000000  1.0050576 -0.0050575912
+# R2      0.500000  0.4991145  0.0008855123
+# SD(e)   4.835865  4.8135563  0.0223090964
+# mu     25.000000 25.0334707 -0.0334707122
 
 ## Generating Method 2 
 gen_m2 <- function(n, p_x, p_y){
-  
   
   # Method 2
   p <- length(p_x$mu)
@@ -357,7 +354,6 @@ gen_m2 <- function(n, p_x, p_y){
   cor_mat <- with(p_y, rbind(c(1, rho), cbind(rho, x_cor_mat)))
   Sigma <- diag(c(p_y$sd, p_x$Sigma)) %*% cor_mat %*% diag(c(p_y$sd, p_x$Sigma))
   
-  
   ## Beta 
   beta <- solve(Sigma[2:(p+1), 2:(p+1)]) %*% Sigma[2: (p +1), 1]
   
@@ -366,7 +362,7 @@ gen_m2 <- function(n, p_x, p_y){
   se <- sqrt(eq26)
   
   ## Rsquared 
-  rsqn <- cor_mat[1, 2:(p +1)] %*% solve(cor_mat[2:(p + 1), 2: (p + 1)]) %*% cor_mat[2:(p+1), 1]
+  rsqn <- cor_mat[1, -1] %*% solve(cor_mat[-1, -1]) %*% cor_mat[-1, 1]
   
   
   ## Beta_0
@@ -376,7 +372,7 @@ gen_m2 <- function(n, p_x, p_y){
   y2 <- with(p_y, (matrix(1, n) %*% beta0)+ x %*% beta + rnorm(n, 0, se))
   
   output <- cbind(y2,x)
-  attr(output, 'par_xy') <- list(p_x, p_y)
+  attr(output, 'par_xy') <- c(p_x, p_y, beta, beta0, rsqn, se)
   return(output) 
 }
 
@@ -395,28 +391,29 @@ m2 <- gen_m2(10000, p_x, p_y)
 m_3d2 <- OLS(m2[,1], cbind(m2[,2:6]))
 
 ## Answer
-
-ans_3d2 <- rbind(r1 = cbind(p_y$rho[1], cor(m2[, 1], m2[, 2]), p_y$rho[1] - cor(m2[, 1], m2[, 2])),
-                 r2 = cbind(p_y$rho[2], cor(m2[, 1], m2[, 3]), p_y$rho[2] - cor(m2[, 1], m2[, 3])),
-                 r3 = cbind(p_y$rho[3], cor(m2[, 1], m2[, 4]), p_y$rho[3] - cor(m2[, 1], m2[, 4])),
-                 r4 = cbind(p_y$rho[4], cor(m2[, 1], m2[, 5]), p_y$rho[4] - cor(m2[, 1], m2[, 5])),
-                 r5 = cbind(p_y$rho[5], cor(m2[, 1], m2[, 6]), p_y$rho[5] - cor(m2[, 1], m2[, 6])),
-                 mu = cbind(mean(m2[,1]), p_y$mu, mean(m2[,1]) - p_y$mu),
-                 sd = cbind(sd(m2[,1]), p_y$sd, sd(m2[,1]) - p_y$sd)
+ans_3d2 <- rbind(b0 = cbind(beta0, m_3d2[1, 1], beta0 - m_3d2[1, 1]),
+                 b1 = cbind(beta[1], m_3d2[2, 1], beta[1] - m_3d2[2, 1]),
+                 b2 = cbind(beta[2], m_3d2[3, 1], beta[2] - m_3d2[3, 1]),
+                 b3 = cbind(beta[3], m_3d2[4, 1], beta[3]- m_3d2[4, 1]),
+                 b4 = cbind(beta[4], m_3d2[5, 1], beta[4]- m_3d2[5, 1]),
+                 b5 = cbind(beta[5], m_3d2[6, 1], beta[5]- m_3d2[6, 1]),
+                 se = cbind(se, m_3d2[7, 1], se - m_3d2[7, 1]),
+                 r2 = cbind(rsqn, m_3d2[8, 1], rsqn - m_3d2[8, 1])
+                 
 )
 
-
 colnames(ans_3d2) <- c("Population", "Estimate", "Difference")
-rownames(ans_3d2) <- c("r1", "r2", "r3", "r4", "r5", "mu", "sd")
+rownames(ans_3d2) <- c("b0", "b1", "b2", "b3", "b4", "b5", "SD(e)", "R2")
 
 
 #### Answer
 
-# Population   Estimate   Difference
-# r1  -0.150000 -0.1595000  0.009500006
-# r2  -0.500000 -0.5040608  0.004060765
-# r3   0.150000  0.1528222 -0.002822168
-# r4   0.300000  0.2885284  0.011471596
-# r5   0.200000  0.1940074  0.005992614
-# mu   9.978362 10.0000000 -0.021638365
-# sd   3.975766  4.0000000 -0.024234206
+#Population   Estimate   Difference
+# b0    10.0000000  9.9958695  0.004130497
+# b1    -0.7058824 -0.7106237  0.004741309
+# b2    -1.6637807 -1.6813177  0.017536996
+# b3     0.4075414  0.3964946  0.011046756
+# b4     0.7058824  0.7044516  0.001430782
+# b5     0.4209069  0.4194456  0.001461357
+# SD(e)  2.8284271  2.8030957  0.025331412
+# R2     0.5000000  0.5030344 -0.003034398
